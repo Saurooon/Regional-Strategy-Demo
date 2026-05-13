@@ -5,13 +5,14 @@ import numpy as np
 # --- Page Config ---
 st.set_page_config(page_title="Open View | Regional Strategy Demo", layout="wide")
 
-st.title("📊 Open View: Strategic Dashboard")
+st.title("Open View: Strategic Dashboard")
 st.markdown("### *Turning the 'Autopsy' (P&L) into a Live Roadmap*")
 
 # --- Sidebar: The "Levers" ---
 # This demonstrates to the client how YOU help them control their numbers.
 st.sidebar.header("Operational Levers")
 st.sidebar.info("Adjust these to see how operational changes impact your bottom line.")
+waste_pct = st.sidebar.slider("Daily Waste/Loss %", 0.0, 10.0, 2.5)
 
 labor_target = st.sidebar.slider("Target Labor %", 15, 35, 22)
 food_cost_target = st.sidebar.slider("Target Food Cost %", 20, 40, 28)
@@ -25,12 +26,25 @@ data = {
     "Labor_Hours": [45, 42, 50, 55, 85, 95, 75]
 }
 df = pd.DataFrame(data)
+# 1. Define the correct order of the week
+days_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+# 2. Convert the 'Day' column to a Categorical type with that order
+df['Day'] = pd.Categorical(df['Day'], categories=days_order, ordered=True)
+
+# 3. Sort the dataframe by that column
+df = df.sort_values('Day')
 df['Labor_Cost'] = df['Labor_Hours'] * 16 # Assuming $16/hr average
 df['Labor_Pct'] = (df['Labor_Cost'] / df['Sales']) * 100
 
 # --- Key Metrics (The "Gauges") ---
 total_sales = df['Sales'].sum()
 avg_labor = df['Labor_Pct'].mean()
+# Calculate the literal dollar amount being 'thrown away'
+waste_total = total_sales * (waste_pct / 100)
+
+with col3:
+    st.metric("Weekly Waste Cost", f"${waste_total:,.2f}", delta="- Action Needed" if waste_total > 500 else None)
 
 col1, col2, col3 = st.columns(3)
 
@@ -53,7 +67,7 @@ st.subheader("Real-Time Sales vs. Labor Performance")
 st.line_chart(df.set_index("Day")[["Sales", "Labor_Cost"]])
 
 # --- The "Regional Coach" Insight ---
-st.subheader("💡 Strategic Insights")
+st.subheader("Strategic Insights")
 if avg_labor > labor_target:
     st.warning(f"**Action Required:** Labor is currently {avg_labor - labor_target:.1f}% over target. Suggest cutting 'on-call' shifts for Tuesday/Wednesday based on sales trends.")
 else:
