@@ -71,4 +71,27 @@ st.subheader("💡 Strategic Insights")
 c1, c2, c3 = st.columns(3)
 
 with c1:
-    st
+    st.markdown("**Labor Strategy**")
+    if avg_labor_pct > labor_target:
+        st.warning(f"Labor is {avg_labor_pct - labor_target:.1f}% over target. Monday and Tuesday show excessive hours relative to volume. Recommend 'staggered' starts.")
+    else:
+        st.success("Labor is optimized. You have successfully aligned your payroll with your traffic flow.")
+
+with c2:
+    st.markdown("**Profitability Analysis**")
+    if profit_margin < 15:
+        st.error(f"Profit Margin ({profit_margin:.1f}%) is below the 15% hospitality benchmark. Your 'Fixed Ops' and 'Food Cost' sliders are currently eating your take-home pay.")
+    else:
+        st.success(f"Strong healthy margins at {profit_margin:.1f}%. This allows for reinvestment or expansion.")
+
+with c3:
+    st.markdown("**Waste & Retention**")
+    if waste_pct > 3:
+        st.info(f"Waste is at {waste_pct}%. On your peak day (Saturday), you are losing ${df['Daily_Waste'].max():,.2f}. Tighten prep-sheets to recover this.")
+    else:
+        st.write("Waste is within acceptable limits. Maintain current inventory controls.")
+
+# --- Footer ---
+st.sidebar.divider()
+st.sidebar.write("Developed by **Open View Consulting**")
+st.sidebar.caption("Empowering Owners with Live Data")
