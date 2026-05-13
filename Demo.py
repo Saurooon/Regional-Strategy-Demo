@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import stumpy as np
 
 # --- Page Config & Styling ---
 st.set_page_config(page_title="Open View | Regional Strategy Demo", layout="wide")
