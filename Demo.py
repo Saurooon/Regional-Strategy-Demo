@@ -77,7 +77,7 @@ col_a, col_b = st.columns(2)
 
 with col_a:
     if avg_labor > labor_target:
-        st.warning(f"**Labor Alert:** You are running {avg_labor - labor_target:.1f}% over your goal. Based on the chart, Mon-Wed are 'heavy' relative to sales. Consider a 'Staggered Clock-in' for those days.")
+        st.warning(f"**Labor Alert:** You are running {avg_labor - labor_target:.1f}% over your goal. Based on the chart, Mon-Wed are 'heavy' relative to sales. Consider a 'Staggered Clock-in' for those days or cutting hours.")
     else:
         st.success("**Labor Optimized:** Your scheduling is tight. Focus can shift to growth.")
 
