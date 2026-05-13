@@ -19,22 +19,21 @@ food_cost_target = st.sidebar.slider("Target Food Cost %", 20, 40, 28)
 avg_ticket = st.sidebar.number_input("Average Ticket Size ($)", value=18.50)
 
 # --- Simulated Data Generation ---
-# In a real setup, this would connect to their POS/Quickbooks
 data = {
-    "Day": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "Sales": [2100, 1950, 2400, 2800, 4500, 5200, 3800],
-    "Labor_Hours": [45, 42, 50, 55, 85, 95, 75]
+    "Day": ["Fri", "Mon", "Sat", "Sun", "Thu", "Tue", "Wed"], # Out of order data
+    "Sales": [4500, 1950, 5200, 3800, 2800, 2100, 2400],
+    "Labor_Hours": [85, 42, 95, 75, 55, 45, 50]
 }
 df = pd.DataFrame(data)
-# 1. Define the correct order of the week
+
+# --- THE FIX STARTS HERE ---
 days_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
-# 2. Convert the 'Day' column to a Categorical type with that order
 df['Day'] = pd.Categorical(df['Day'], categories=days_order, ordered=True)
-
-# 3. Sort the dataframe by that column
 df = df.sort_values('Day')
-df['Labor_Cost'] = df['Labor_Hours'] * 16 # Assuming $16/hr average
+# --- THE FIX ENDS HERE ---
+
+# Now calculate the costs AFTER sorting
+df['Labor_Cost'] = df['Labor_Hours'] * 16 
 df['Labor_Pct'] = (df['Labor_Cost'] / df['Sales']) * 100
 
 # --- Key Metrics (The "Gauges") ---
