@@ -19,11 +19,12 @@ labor_target = st.sidebar.slider("Target Labor %", 15, 35, 22)
 food_cost_target = st.sidebar.slider("Target Food Cost %", 20, 40, 28)
 waste_pct = st.sidebar.slider("Daily Waste/Loss %", 0.0, 10.0, 2.5)
 fixed_costs_pct = st.sidebar.slider("Fixed Ops % (Rent/Utilities)", 10, 30, 20)
+avg_ticket = st.sidebar.number_input("Average Ticket Size ($)", value=18.50)
 
 # --- Data Generation & Chronological Fix ---
 data = {
     "Day": ["Fri", "Mon", "Sat", "Sun", "Thu", "Tue", "Wed"],
-    "Sales": [4500, 1950, 5200, 3800, 2800, 2100, 2400],
+    "Sales": [4500, 1950, 2400, 2800, 3200, 2100, 2400], # Adjusted for a realistic week
     "Labor_Hours": [85, 42, 95, 75, 55, 45, 50]
 }
 df = pd.DataFrame(data)
@@ -38,10 +39,10 @@ df['Daily_Food_Cost'] = df['Sales'] * (food_cost_target / 100)
 df['Daily_Fixed'] = df['Sales'] * (fixed_costs_pct / 100)
 df['Daily_Profit'] = df['Sales'] - (df['Labor_Cost'] + df['Daily_Waste'] + df['Daily_Food_Cost'] + df['Daily_Fixed'])
 
-# --- Metrics Section ---
+# --- Top Metrics Section ---
 total_sales = df['Sales'].sum()
 total_profit = df['Daily_Profit'].sum()
-avg_labor = (df['Labor_Cost'].sum() / total_sales) * 100
+avg_labor_pct = (df['Labor_Cost'].sum() / total_sales) * 100
 waste_total = df['Daily_Waste'].sum()
 
 col1, col2, col3, col4 = st.columns(4)
@@ -50,11 +51,11 @@ with col1:
     st.metric("Weekly Sales", f"${total_sales:,.2f}")
 
 with col2:
-    # THE NEW TOTAL PROFIT METRIC
-    st.metric("Total Net Profit", f"${total_profit:,.2f}", delta="Check Margins" if total_profit < (total_sales * 0.1) else "Healthy")
+    profit_margin = (total_profit / total_sales) * 100
+    st.metric("Total Net Profit", f"${total_profit:,.2f}", delta=f"{profit_margin:.1f}% Margin")
 
 with col3:
-    st.metric("Avg Labor %", f"{avg_labor:.1f}%", delta=f"{avg_labor - labor_target:.1f}%", delta_color="inverse")
+    st.metric("Avg Labor %", f"{avg_labor_pct:.1f}%", delta=f"{avg_labor_pct - labor_target:.1f}%", delta_color="inverse")
 
 with col4:
     st.metric("Weekly Waste", f"${waste_total:,.2f}")
@@ -62,19 +63,12 @@ with col4:
 # --- Visualizing the Narrative ---
 st.divider()
 st.subheader("Real-Time Sales, Labor, and Waste Trends")
-# Added Daily_Waste to the line chart
+# 3-line chart showing the relationship between revenue and costs
 st.line_chart(df.set_index("Day")[["Sales", "Labor_Cost", "Daily_Waste"]])
 
-# --- The "Regional Coach" Insight Section ---
+# --- The "Regional Coach" Strategic Insights ---
 st.subheader("💡 Strategic Insights")
-c1, c2 = st.columns(2)
-with c1:
-    if total_profit < (total_sales * 0.15):
-        st.warning(f"**Margin Warning:** Your net profit is currently { (total_profit/total_sales)*100 :.1f}%. A healthy target is 15-20%. Check your Waste and Food Cost sliders.")
-    else:
-        st.success("**Strong Performance:** Your systems are generating healthy cashflow.")
-with c2:
-    st.info(f"**Visual Proof:** Notice how the 'Daily Waste' line stays flat or climbs. Even at {waste_pct}%, you are losing ${df['Daily_Waste'].max():,.2f} on your busiest day (Saturday).")
+c1, c2, c3 = st.columns(3)
 
-st.sidebar.divider()
-st.sidebar.write("Developed by **Open View Consulting**")
+with c1:
+    st
